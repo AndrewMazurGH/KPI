@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, desc
 
 spark = SparkSession.builder.appName("FrogsAnalysis").getOrCreate()
 
-df = spark.read.csv("./BigData/lab1/frogs.csv", header=True, inferSchema=True)
+df = spark.read.csv("./BigData/data_storage/frogs.csv", header=True, inferSchema=True)
 
 print("Схема DataFrame:")
 df.printSchema()
@@ -12,7 +12,9 @@ print("\nПерші рядки DataFrame:")
 df.show(5)
 
 # Завдання на здачі лаби. Знайти максимальну висоту, на якій спостерігаються жаби
-max_altitude_presense = df.filter(df["`pres.abs`"] == 0).agg({"altitude": "max"}).collect()[0][0]
+max_altitude_presense = (
+    df.filter(df["`pres.abs`"] == 0).agg({"altitude": "max"}).collect()[0][0]
+)
 print(f"Максимальна висота, на якій присутні жаби: {max_altitude_presense}")
 
 # Знайти максимальну висоту, на якій спостерігаються жаби
