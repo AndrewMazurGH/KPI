@@ -25,7 +25,7 @@ df.printSchema()
 def format_output(row):
     distance = row["distance"]
     pools = row["NoOfPools"]
-    pools_str = ", ".join(map(str, pools[:8]))  # Показуємо тільки перші 5 елементів
+    pools_str = ", ".join(map(str, pools[:8]))  # Показуємо тільки перші 8 елементів
     if len(pools) > 8:
         pools_str += f", ... (+{len(pools)-8} more)"
     return f"{distance:8d} | {pools_str}"
