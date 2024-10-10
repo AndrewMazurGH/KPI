@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql import Window
 from pyspark.sql.functions import (
     col,
     collect_list,
@@ -100,20 +101,22 @@ print(
 min_altitude_df.select("presence", "NoOfSites", "min_altitude").show(truncate=False)
 
 # Завдання 4: Додавання нового стовпця з різницею між максимальною та поточною відстанню
-max_distance = df.filter(col("`pres.abs`") == 0).agg(spark_max("distance")).first()[0]
+window_spec = Window.partitionBy("`pres.abs`")
 
 frogs_with_diff_df = df.withColumn(
+    "max_distance",
+    spark_max("distance").over(window_spec)
+).withColumn(
     "distance_diff",
-    when(col("`pres.abs`") == 1, lit(max_distance) - col("distance")).otherwise(lit(0)),
-)
-
+    col("max_distance") - col("distance")
+).drop("max_distance")
 print(
     "\n4. Таблиця з новим стовпцем, що містить різницю між максимальною та поточною відстанню:"
 )
 frogs_with_diff_df.select("`pres.abs`", "distance", "distance_diff").show(50)
 
-# Збереження результату в новий CSV файл
-frogs_with_diff_df.write.option("header", "true").csv(
+# Збереження результату в новий CSV файл з режимом перезапису
+frogs_with_diff_df.write.mode('overwrite').option("header", "true").csv(
     "./BigData/lab2/frogs_with_diff.csv"
 )
 
