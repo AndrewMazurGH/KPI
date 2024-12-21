@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Booking, BookingDocument } from '../../shared/schemas/booking.schema';
@@ -13,35 +17,42 @@ export class BookingsService {
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
   ) {}
 
-  async create(userId: string, createBookingDto: CreateBookingDto): Promise<BookingDocument> {
+  async create(
+    userId: string,
+    createBookingDto: CreateBookingDto,
+  ): Promise<BookingDocument> {
     // Check for booking conflicts
-    const conflictingBooking = await this.bookingModel.findOne({
-      roomId: new Types.ObjectId(createBookingDto.roomId),  // Convert to ObjectId here
-      status: { $ne: BookingStatus.CANCELLED },
-      $or: [
-        {
-          startDate: { $lt: createBookingDto.endDate },
-          endDate: { $gt: createBookingDto.startDate }
-        }
-      ]
-    }).exec();  // Add .exec()
-  
+    const conflictingBooking = await this.bookingModel
+      .findOne({
+        roomId: new Types.ObjectId(createBookingDto.roomId), // Convert to ObjectId here
+        status: { $ne: BookingStatus.CANCELLED },
+        $or: [
+          {
+            startDate: { $lt: createBookingDto.endDate },
+            endDate: { $gt: createBookingDto.startDate },
+          },
+        ],
+      })
+      .exec(); // Add .exec()
+
     if (conflictingBooking) {
-      throw new BadRequestException('Room is already booked for this time period');
+      throw new BadRequestException(
+        'Room is already booked for this time period',
+      );
     }
-  
+
     // Use create instead of new + save
     return this.bookingModel.create({
       userId: new Types.ObjectId(userId),
       roomId: new Types.ObjectId(createBookingDto.roomId),
       startDate: createBookingDto.startDate,
-      endDate: createBookingDto.endDate
+      endDate: createBookingDto.endDate,
     });
   }
 
   async findAll(query: BookingQueryDto) {
     const filter: any = {};
-    
+
     if (query.startDate) {
       filter.startDate = { $gte: query.startDate };
     }
@@ -82,7 +93,10 @@ export class BookingsService {
     return booking;
   }
 
-  async update(id: string, updateBookingDto: UpdateBookingDto): Promise<BookingDocument> {
+  async update(
+    id: string,
+    updateBookingDto: UpdateBookingDto,
+  ): Promise<BookingDocument> {
     const booking = await this.bookingModel
       .findByIdAndUpdate(id, updateBookingDto, { new: true })
       .exec();
@@ -97,7 +111,7 @@ export class BookingsService {
   async cancel(id: string, userId: string): Promise<BookingDocument> {
     const booking = await this.bookingModel.findOne({
       _id: id,
-      userId: new Types.ObjectId(userId)
+      userId: new Types.ObjectId(userId),
     });
 
     if (!booking) {

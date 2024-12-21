@@ -1,4 +1,10 @@
-import { IsDate, IsNotEmpty, IsString, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateBookingDto {

@@ -81,7 +81,9 @@ describe('BookingsService', () => {
     }).compile();
 
     service = module.get<BookingsService>(BookingsService);
-    bookingModel = module.get<Model<BookingDocument>>(getModelToken(Booking.name));
+    bookingModel = module.get<Model<BookingDocument>>(
+      getModelToken(Booking.name),
+    );
   });
 
   describe('create', () => {
@@ -98,9 +100,9 @@ describe('BookingsService', () => {
       mockQuery.sort.mockReturnThis();
       mockExec.mockResolvedValueOnce(null); // For conflict check
       (bookingModel.create as jest.Mock).mockResolvedValueOnce(mockBooking);
-    
+
       const result = await service.create(mockUserId.toString(), createDto);
-    
+
       expect(result).toEqual(mockBooking);
       expect(bookingModel.findOne).toHaveBeenCalledWith({
         roomId: mockRoomId,
@@ -148,10 +150,10 @@ describe('BookingsService', () => {
       mockQuery.populate.mockReturnThis();
       mockQuery.sort.mockReturnThis();
       mockExec.mockResolvedValueOnce(mockBookings);
-    
+
       const query: BookingQueryDto = {};
       const result = await service.findAll(query);
-    
+
       expect(result).toEqual(mockBookings);
       expect(bookingModel.find).toHaveBeenCalledWith({});
     });
@@ -163,13 +165,13 @@ describe('BookingsService', () => {
       mockQuery.populate.mockReturnThis();
       mockQuery.sort.mockReturnThis();
       mockExec.mockResolvedValueOnce(mockBookings);
-    
+
       const startDate = new Date('2024-01-01T00:00:00.000Z');
       const endDate = new Date('2024-01-05T00:00:00.000Z');
       const query: BookingQueryDto = { startDate, endDate };
-    
+
       const result = await service.findAll(query);
-    
+
       expect(result).toEqual(mockBookings);
       expect(bookingModel.find).toHaveBeenCalledWith({
         startDate: { $gte: startDate },
@@ -185,12 +187,18 @@ describe('BookingsService', () => {
 
     it('should update booking successfully', async () => {
       // Сервіс очікує 1 об'єкт від findByIdAndUpdate(...).exec()
-      const updatedBooking = { ...mockBooking, status: BookingStatus.CONFIRMED };
+      const updatedBooking = {
+        ...mockBooking,
+        status: BookingStatus.CONFIRMED,
+      };
       // Reset mock and return single object, not array
       mockExec.mockReset();
       mockExec.mockResolvedValueOnce(updatedBooking);
 
-      const result = await service.update(mockBooking._id.toString(), updateDto);
+      const result = await service.update(
+        mockBooking._id.toString(),
+        updateDto,
+      );
 
       // Перевіряємо результат
       expect(result).toEqual(updatedBooking);

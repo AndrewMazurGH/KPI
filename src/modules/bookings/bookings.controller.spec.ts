@@ -76,7 +76,9 @@ describe('BookingsController', () => {
       const mockBookings = [mockBooking];
       mockBookingsService.findByUser.mockResolvedValue(mockBookings);
 
-      const result = await controller.findMyBookings(mockBooking.userId.toString());
+      const result = await controller.findMyBookings(
+        mockBooking.userId.toString(),
+      );
 
       expect(result).toEqual(mockBookings);
       expect(service.findByUser).toHaveBeenCalledWith(

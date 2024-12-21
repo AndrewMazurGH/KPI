@@ -18,10 +18,10 @@ export class Booking {
   @Prop({ required: true })
   endDate: Date;
 
-  @Prop({ 
-    type: String, 
-    enum: BookingStatus, 
-    default: BookingStatus.PENDING 
+  @Prop({
+    type: String,
+    enum: BookingStatus,
+    default: BookingStatus.PENDING,
   })
   status: BookingStatus;
 
